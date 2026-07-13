@@ -3,46 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="https://pierrecochart.github.io/internal-link-weaver/">
     <title>Advanced Internal Link Weaver | Pierre Cochart</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <meta name="description" content="Automatically insert internal links into your HTML from a keyword-to-URL list, with rules for headings, paragraphs, and per-URL limits. Free and client-side.">
+    <meta property="og:title" content="Advanced Internal Link Weaver">
+    <meta property="og:description" content="Paste HTML and a keyword-to-URL list, and automatically weave internal links in with fine-grained exclusion rules. Free and client-side.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pierrecochart.github.io/internal-link-weaver/">
+    <meta property="og:image" content="https://placehold.co/1200x630/0F6E8C/FAFAF7?font=roboto&text=Internal+Link+Weaver">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://placehold.co/1200x630/0F6E8C/FAFAF7?font=roboto&text=Internal+Link+Weaver">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --google-blue: #1a73e8;
-            --google-blue-hover: #1557b0;
-            --google-gray: #dadce0;
-            --bg-color: #f8f9fa;
-            --text-color: #202124;
-            --coffee-color: #FFDD00;
+            --google-blue: #0F6E8C;
+            --google-blue-hover: #0B5570;
+            --google-gray: #DAD7CC;
+            --bg-color: #EFEEE7;
+            --text-color: #191D22;
+
+            /* Sitewide aliases, used by the header/footer/SEO block */
+            --paper: #FAFAF7;
+            --panel: var(--bg-color);
+            --ink: var(--text-color);
+            --ink-soft: #565C64;
+            --line: var(--google-gray);
+            --blueprint: var(--google-blue);
+            --blueprint-dark: var(--google-blue-hover);
+            --amber: #E8A33D;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-mono: 'IBM Plex Mono', monospace;
+            --header-height: 76px;
         }
 
         body {
-            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: var(--font-body);
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
             padding: 0;
-            display: flex;
-            min-height: 100vh;
         }
 
-        /* SIDEBAR STYLES */
+        .layout-flex {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        /* SIDEBAR STYLES — fixed, sits below the sticky site header */
         .sidebar {
             width: 280px;
-            background: #fff;
+            background: var(--paper);
             border-right: 1px solid var(--google-gray);
             padding: 24px;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
             position: fixed;
-            height: 100%;
+            height: calc(100vh - var(--header-height));
             left: 0;
-            top: 0;
+            top: var(--header-height);
             overflow-y: auto;
         }
 
         .sidebar h2 {
-            font-size: 18px;
+            font-family: var(--font-display);
+            font-size: 17px;
+            font-weight: 600;
             color: var(--google-blue);
             margin-top: 0;
         }
@@ -51,7 +82,7 @@
             padding-left: 20px;
             line-height: 1.6;
             font-size: 14px;
-            color: #5f6368;
+            color: var(--ink-soft);
             margin-bottom: auto;
         }
 
@@ -59,31 +90,14 @@
             margin-bottom: 12px;
         }
 
-        .coffee-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: var(--coffee-color);
-            color: #000;
-            text-decoration: none;
-            font-weight: 700;
-            padding: 12px;
-            border-radius: 24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-            transition: transform 0.2s, box-shadow 0.2s;
-            margin-top: 20px;
-            font-family: 'Cookie', cursive, sans-serif;
-        }
-
-        .coffee-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
-        }
-
-        .coffee-img {
-            height: 24px;
-            margin-right: 8px;
-        }
+        /* Buy Me a Coffee card (standardised component) */
+        .bmc-card { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); text-align: center; }
+        .bmc-card__icon { font-size: 1.3rem; margin-bottom: 4px; }
+        .bmc-card__heading { font-family: var(--font-display); font-weight: 600; font-size: 0.9rem; color: var(--ink); margin: 0 0 4px; }
+        .bmc-card__text { font-size: 11.5px; color: var(--ink-soft); margin-bottom: 12px; line-height: 1.5; }
+        .bmc-card__button { display: inline-flex; align-items: center; gap: 6px; background: var(--blueprint); color: #fff; text-decoration: none; font-family: var(--font-body); font-weight: 600; font-size: 0.8rem; padding: 9px 16px; border-radius: 6px; transition: background .15s ease; }
+        .bmc-card__button:hover { background: var(--blueprint-dark); }
+        .bmc-card__button svg { width: 15px; height: 15px; flex-shrink: 0; }
 
         /* MAIN CONTENT STYLES */
         .main-content {
@@ -91,48 +105,46 @@
             padding: 40px;
             flex-grow: 1;
             max-width: 1000px;
+            box-sizing: border-box;
         }
 
         .header {
             margin-bottom: 30px;
         }
-        
+
         h1 {
-            font-size: 28px;
-            font-weight: 400;
+            font-family: var(--font-display);
+            font-size: 26px;
+            font-weight: 700;
             color: var(--text-color);
             margin: 0;
         }
 
         .card {
-            background: #fff;
+            background: var(--paper);
             border: 1px solid var(--google-gray);
             border-radius: 8px;
             padding: 24px;
             margin-bottom: 24px;
-            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.1), 0 2px 6px 2px rgba(60,64,67,0.05);
-            transition: box-shadow 0.3s ease-in-out;
-        }
-
-        .card:hover {
-            box-shadow: 0 1px 3px 0 rgba(60,64,67,0.2), 0 4px 8px 3px rgba(60,64,67,0.1);
         }
 
         label {
             display: block;
             font-size: 14px;
             font-weight: 500;
-            color: #5f6368;
+            color: var(--ink-soft);
             margin-bottom: 8px;
         }
 
         h3.section-title {
-            font-size: 14px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            font-weight: 500;
             text-transform: uppercase;
-            color: #5f6368;
+            color: var(--ink-soft);
             margin: 20px 0 10px 0;
-            letter-spacing: 0.5px;
-            border-bottom: 1px solid #f1f3f4;
+            letter-spacing: 0.06em;
+            border-bottom: 1px solid var(--panel);
             padding-bottom: 5px;
         }
 
@@ -142,16 +154,17 @@
             padding: 12px;
             border: 1px solid var(--google-gray);
             border-radius: 4px;
-            font-family: 'Roboto Mono', monospace;
+            font-family: var(--font-mono);
             font-size: 13px;
             box-sizing: border-box;
             outline: none;
             transition: border 0.1s, box-shadow 0.1s;
-            background-color: #fff;
+            background-color: var(--paper);
+            color: var(--text-color);
         }
-        
+
         select {
-            font-family: 'Roboto', sans-serif;
+            font-family: var(--font-body);
             cursor: pointer;
             height: 42px;
             appearance: none;
@@ -178,42 +191,42 @@
             color: white;
             border: none;
             padding: 10px 24px;
+            font-family: var(--font-body);
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
             border-radius: 4px;
             cursor: pointer;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
             transition: background 0.2s;
         }
 
         .primary-btn:hover {
             background-color: var(--google-blue-hover);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
 
         .toggle-group {
             display: inline-flex;
-            background: #f1f3f4;
+            background: var(--panel);
             border-radius: 4px;
             padding: 2px;
             margin-bottom: 10px;
         }
 
         .toggle-btn {
+            font-family: var(--font-body);
             border: none;
             background: transparent;
             padding: 6px 16px;
             font-size: 13px;
             font-weight: 500;
-            color: #5f6368;
+            color: var(--ink-soft);
             cursor: pointer;
             border-radius: 3px;
         }
 
         .toggle-btn.active {
-            background: #fff;
+            background: var(--paper);
             color: var(--google-blue);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 2px rgba(25,29,34,0.1);
         }
 
         /* CHECKBOXES & GRIDS */
@@ -222,7 +235,7 @@
             grid-template-columns: 1fr 1fr;
             gap: 20px;
             margin-top: 15px;
-            border-top: 1px solid #f1f3f4;
+            border-top: 1px solid var(--panel);
             padding-top: 15px;
         }
 
@@ -237,9 +250,9 @@
             display: flex;
             align-items: center;
             font-size: 13px;
-            color: #5f6368;
+            color: var(--ink-soft);
         }
-        
+
         input[type="checkbox"] {
             margin-right: 8px;
             accent-color: var(--google-blue);
@@ -253,7 +266,7 @@
             padding: 20px;
             border: 1px solid var(--google-gray);
             border-radius: 4px;
-            background: #fff;
+            background: var(--paper);
             display: none;
             box-sizing: border-box;
             overflow-y: auto;
@@ -262,8 +275,8 @@
         #stats {
             margin-left: 15px;
             font-size: 14px;
-            color: #188038;
-            font-weight: 500;
+            color: #2F8558;
+            font-weight: 600;
         }
 
         .action-row {
@@ -273,15 +286,161 @@
         }
 
         @media (max-width: 900px) {
-            body { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; position: relative; border-right: none; border-bottom: 1px solid var(--google-gray); }
+            .layout-flex { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; position: relative; top: 0; border-right: none; border-bottom: 1px solid var(--google-gray); }
             .main-content { margin-left: 0; padding: 20px; }
             .settings-grid, .checkbox-grid { grid-template-columns: 1fr; }
         }
+
+        /* --- Site header --- */
+        .site-header { background: var(--paper); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 200; font-family: var(--font-body); }
+        .site-header__ruler { height: 4px; background-image: repeating-linear-gradient(90deg, var(--blueprint) 0 1px, transparent 1px 12px); opacity: 0.5; }
+        .site-header__inner { max-width: 1140px; margin: 0 auto; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .site-header__brand { text-decoration: none; color: var(--ink); line-height: 1.1; }
+        .site-header__eyebrow { display: block; font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.14em; color: var(--blueprint); text-transform: uppercase; margin-bottom: 2px; }
+        .site-header__wordmark { display: block; font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; color: var(--ink); }
+        .nav-toggle { display: none; flex-direction: column; gap: 4px; background: none; border: 1px solid var(--line); border-radius: 4px; cursor: pointer; padding: 8px 10px; }
+        .nav-toggle span { width: 18px; height: 2px; background: var(--ink); display: block; }
+        .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+        .site-nav__list { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; }
+        .site-nav__item { position: relative; }
+        .site-nav__link { background: none; border: none; font: inherit; font-family: var(--font-body); font-weight: 500; font-size: 0.92rem; cursor: pointer; padding: 9px 12px; color: var(--ink); text-decoration: none; display: inline-block; border-radius: 4px; }
+        .site-nav__link:hover, .site-nav__link:focus { color: var(--blueprint); background: var(--panel); }
+        .dropdown { list-style: none; margin: 0; padding: 6px; position: absolute; top: 100%; left: 0; background: var(--paper); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 10px 28px rgba(25,29,34,0.10); min-width: 250px; opacity: 0; visibility: hidden; transform: translateY(6px); transition: opacity .15s ease, transform .15s ease, visibility .15s; }
+        .has-dropdown:hover .dropdown, .has-dropdown:focus-within .dropdown { opacity: 1; visibility: visible; transform: translateY(0); }
+        .dropdown li a { display: block; padding: 8px 10px; color: var(--ink); text-decoration: none; border-radius: 4px; font-size: 0.88rem; border-left: 2px solid transparent; }
+        .dropdown li a:hover, .dropdown li a:focus { background: var(--panel); border-left-color: var(--blueprint); color: var(--blueprint-dark); }
+        @media (max-width: 860px) {
+          .nav-toggle { display: flex; }
+          .site-nav { display: none; width: 100%; order: 3; }
+          .site-nav.is-open { display: block; }
+          .site-nav__list { flex-direction: column; gap: 0; }
+          .site-nav__item { width: 100%; }
+          .dropdown { position: static; opacity: 1; visibility: visible; transform: none; box-shadow: none; border: none; display: none; padding-left: 10px; }
+          .has-dropdown.is-open .dropdown { display: block; }
+          .site-header__inner { flex-wrap: wrap; }
+        }
+
+        /* --- SEO content block --- */
+        .tool-content { max-width: 780px; margin: 64px auto 0; padding: 0 20px; font-family: var(--font-body); color: var(--ink); line-height: 1.65; }
+        .tool-content h2 { font-family: var(--font-display); font-size: 1.5rem; margin: 40px 0 14px; color: var(--ink); }
+        .tool-content p { font-size: 0.98rem; color: var(--ink-soft); margin: 0 0 14px; }
+        .faq-item { position: relative; border: 1px solid var(--line); border-radius: 6px; padding: 4px 16px; margin-bottom: 10px; background: var(--paper); }
+        .faq-item::before, .faq-item::after { content: ""; position: absolute; width: 10px; height: 10px; border-color: var(--blueprint); border-style: solid; opacity: 0.6; }
+        .faq-item::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+        .faq-item::after { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+        .faq-item summary { cursor: pointer; font-weight: 600; padding: 14px 0; font-size: 0.96rem; list-style: none; }
+        .faq-item summary::-webkit-details-marker { display: none; }
+        .faq-item summary::after { content: "+"; float: right; font-family: var(--font-mono); color: var(--blueprint); }
+        .faq-item[open] summary::after { content: "–"; }
+        .faq-item p { padding-bottom: 14px; margin: 0; }
+        .related-tools { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; }
+        .related-tools__card { position: relative; display: block; border: 1px solid var(--line); border-radius: 6px; padding: 18px; text-decoration: none; background: var(--paper); transition: border-color .15s ease; }
+        .related-tools__card:hover { border-color: var(--blueprint); }
+        .related-tools__card::before, .related-tools__card::after { content: ""; position: absolute; width: 10px; height: 10px; border-color: var(--blueprint); border-style: solid; opacity: 0.6; }
+        .related-tools__card::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+        .related-tools__card::after { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+        .related-tools__eyebrow { font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blueprint); margin: 0 0 6px; }
+        .related-tools__name { font-family: var(--font-display); font-weight: 600; font-size: 0.98rem; color: var(--ink); margin: 0 0 4px; }
+        .related-tools__desc { font-size: 0.85rem; color: var(--ink-soft); margin: 0; }
+        @media (max-width: 720px) { .related-tools { grid-template-columns: 1fr; } }
+
+        /* --- Site footer --- */
+        .site-footer { background: var(--panel); border-top: 1px solid var(--line); margin-top: 60px; font-family: var(--font-body); }
+        .site-footer__cta { border-bottom: 1px solid var(--line); }
+        .site-footer__cta-inner { max-width: 1140px; margin: 0 auto; padding: 36px 20px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+        .site-footer__cta-text { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blueprint); margin: 0 0 4px; }
+        .site-footer__cta-heading { font-family: var(--font-display); font-weight: 600; font-size: 1.2rem; color: var(--ink); margin: 0; }
+        .site-footer__cta-link { font-family: var(--font-body); font-weight: 600; font-size: 0.9rem; color: #fff; background: var(--blueprint); text-decoration: none; padding: 12px 20px; border-radius: 6px; white-space: nowrap; transition: background .15s ease; }
+        .site-footer__cta-link:hover { background: var(--blueprint-dark); }
+        .site-footer__inner { max-width: 1140px; margin: 0 auto; padding: 40px 20px 20px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+        .site-footer__col h3 { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+        .site-footer__col ul { list-style: none; margin: 0; padding: 0; }
+        .site-footer__col li { margin-bottom: 8px; }
+        .site-footer__col a { color: var(--ink); text-decoration: none; font-size: 0.9rem; }
+        .site-footer__col a:hover { color: var(--blueprint); text-decoration: underline; }
+        .site-footer__bottom { max-width: 1140px; margin: 0 auto; padding: 18px 20px 30px; border-top: 1px solid var(--line); font-size: 0.82rem; color: var(--ink-soft); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+        .site-footer__bottom a { color: var(--ink-soft); }
+        .site-footer__bottom a:hover { color: var(--blueprint); }
+        @media (max-width: 860px) { .site-footer__inner { grid-template-columns: repeat(2, 1fr); } }
     </style>
 </head>
 <body>
 
+<header class="site-header">
+  <div class="site-header__ruler"></div>
+  <div class="site-header__inner">
+    <a class="site-header__brand" href="https://pierrecochart.github.io/">
+      <span class="site-header__eyebrow">Free Web Toolkit</span>
+      <span class="site-header__wordmark">Pierre Cochart</span>
+    </a>
+
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="siteNav">
+      <span></span><span></span><span></span>
+      <span class="sr-only">Menu</span>
+    </button>
+
+    <nav class="site-nav" id="siteNav">
+      <ul class="site-nav__list">
+        <li class="site-nav__item has-dropdown">
+          <button class="site-nav__link" aria-expanded="false">Image &amp; Media</button>
+          <ul class="dropdown">
+            <li><a href="https://pierrecochart.github.io/image-cropper/">Bulk Image Cropper</a></li>
+            <li><a href="https://pierrecochart.github.io/image-background-remover/">Image Background Remover</a></li>
+            <li><a href="https://pierrecochart.github.io/color-palette-generator/">Color Palette Generator</a></li>
+            <li><a href="https://pierrecochart.github.io/duotone-generator/">Duotone Generator</a></li>
+            <li><a href="https://pierrecochart.github.io/image-dithering-tool/">Image Dithering Tool</a></li>
+            <li><a href="https://pierrecochart.github.io/advanced-image-cropping-tool/">Advanced Image Cropper</a></li>
+            <li><a href="https://pierrecochart.github.io/image-to-webp-converter/">Image to WebP Converter</a></li>
+            <li><a href="https://pierrecochart.github.io/quickfav-favicon-maker/">QuickFav Favicon Maker</a></li>
+            <li><a href="https://pierrecochart.github.io/svg-cleaner/">SVG Cleaner</a></li>
+            <li><a href="https://pierrecochart.github.io/code-screenshot-image-creator/">Code Screenshot Generator</a></li>
+          </ul>
+        </li>
+        <li class="site-nav__item has-dropdown">
+          <button class="site-nav__link" aria-expanded="false">SEO &amp; Content</button>
+          <ul class="dropdown">
+            <li><a href="https://pierrecochart.github.io/canonical-generating-tool/">Canonical Generator</a></li>
+            <li><a href="https://pierrecochart.github.io/useful-links-builder/">Useful Links Builder</a></li>
+            <li><a href="https://pierrecochart.github.io/hreflang-generator-tool/">Hreflang Generator</a></li>
+            <li><a href="https://pierrecochart.github.io/website-migration-bulk-redirect-tool/">Bulk Redirect Mapper</a></li>
+            <li><a href="https://pierrecochart.github.io/google-dork-search-operator-tool/">Google Dork Builder</a></li>
+            <li><a href="https://pierrecochart.github.io/keyword-mixer-tool/">Keyword Mixer</a></li>
+            <li><a href="https://pierrecochart.github.io/SERP-Snippet-Viewer-Optimiser/">SERP Simulator</a></li>
+            <li><a href="https://pierrecochart.github.io/seo-bulk-header-audit-tool/">SEO Header Audit</a></li>
+            <li><a href="https://pierrecochart.github.io/faq-generator/">FAQ &amp; Schema Generator</a></li>
+            <li><a href="https://pierrecochart.github.io/internal-link-weaver/">Internal Link Weaver</a></li>
+            <li><a href="https://pierrecochart.github.io/word-character-counter-read-time/">Word &amp; Character Counter</a></li>
+            <li><a href="https://pierrecochart.github.io/ai-blog-summarizer-button-generator/">AI Blog Summarizer</a></li>
+          </ul>
+        </li>
+        <li class="site-nav__item has-dropdown">
+          <button class="site-nav__link" aria-expanded="false">PPC &amp; Analytics</button>
+          <ul class="dropdown">
+            <li><a href="https://pierrecochart.github.io/google-adwords-campaign-architect-tool/">AdWords Architect</a></li>
+            <li><a href="https://pierrecochart.github.io/roas-modeller/">ROAS Modeller</a></li>
+            <li><a href="https://pierrecochart.github.io/statistical-significance-calculator/">Significance Calculator</a></li>
+          </ul>
+        </li>
+        <li class="site-nav__item has-dropdown">
+          <button class="site-nav__link" aria-expanded="false">Development</button>
+          <ul class="dropdown">
+            <li><a href="https://pierrecochart.github.io/document-html-link-remover/">Link Remover Tool</a></li>
+            <li><a href="https://pierrecochart.github.io/word-doc-content-sanitizer/">Word Content Sanitizer</a></li>
+            <li><a href="https://pierrecochart.github.io/github-website-builder/">GitHub Website Builder</a></li>
+            <li><a href="https://pierrecochart.github.io/html-editor/">HTML Editor</a></li>
+            <li><a href="https://pierrecochart.github.io/app-store-event-previewer/">App Store Event Previewer</a></li>
+          </ul>
+        </li>
+        <li class="site-nav__item">
+          <a class="site-nav__link" href="https://searchfoundry.co.uk" target="_blank" rel="noopener">SEO/PPC Help ↗</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<div class="layout-flex">
     <aside class="sidebar">
         <h2>How to use</h2>
         <ol class="instruction-list">
@@ -297,10 +456,15 @@
             <li>Click <strong>Weave Links</strong>.</li>
         </ol>
 
-        <a href="https://buymeacoffee.com/PierreCochart" target="_blank" class="coffee-btn">
-            <img src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" alt="Buy me a coffee" class="coffee-img">
-            <span>Buy me a coffee</span>
-        </a>
+        <div class="bmc-card">
+            <div class="bmc-card__icon">☕</div>
+            <p class="bmc-card__heading">This tool is free to use</p>
+            <p class="bmc-card__text">If it saved you some time, consider supporting future updates.</p>
+            <a class="bmc-card__button" href="https://www.buymeacoffee.com/PierreCochart" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 10h14a2 2 0 0 1 2 2v1a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4v-3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M20 12h1a2 2 0 0 1 2 2 3 3 0 0 1-3 3h-1" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 3c-.5 1-.5 1.8 0 2.5M12 3c-.5 1-.5 1.8 0 2.5M16 3c-.5 1-.5 1.8 0 2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                Buy me a coffee
+            </a>
+        </div>
     </aside>
 
     <main class="main-content">
@@ -316,7 +480,7 @@
         <div class="card">
             <label for="csvInput">2. Keywords & URLs</label>
             <textarea id="csvInput" placeholder="keyword one, https://example.com/page1&#10;keyword two, https://example.com/page1" style="height: 120px;"></textarea>
-            
+
             <div class="settings-grid">
                 <div>
                     <label for="linkRel">Link Tagging (Rel)</label>
@@ -353,11 +517,11 @@
             </div>
 
             <h3 class="section-title">Exclusion Rules</h3>
-            <div class="checkbox-wrapper" style="margin-bottom: 12px; background: #e8f0fe; padding: 8px; border-radius: 4px;">
+            <div class="checkbox-wrapper" style="margin-bottom: 12px; background: #DCEAEE; padding: 8px; border-radius: 4px;">
                 <input type="checkbox" id="onlyP">
-                <label for="onlyP" style="margin:0; font-weight:bold; color: #1a73e8;">Only link text within &lt;p&gt; tags (Overrides exclusions below)</label>
+                <label for="onlyP" style="margin:0; font-weight:bold; color: var(--google-blue);">Only link text within &lt;p&gt; tags (Overrides exclusions below)</label>
             </div>
-            
+
             <div class="checkbox-grid">
                 <div class="checkbox-wrapper">
                     <input type="checkbox" id="ignoreH1" checked>
@@ -390,221 +554,399 @@
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <label style="margin-bottom: 0;">3. Output</label>
-                
+
                 <div class="toggle-group">
                     <button class="toggle-btn active" id="btnCode" onclick="switchView('code')">HTML Code</button>
                     <button class="toggle-btn" id="btnPreview" onclick="switchView('preview')">Preview</button>
                 </div>
             </div>
 
-            <textarea id="outputHtml" readonly style="height: 300px; background-color: #f8f9fa;"></textarea>
+            <textarea id="outputHtml" readonly style="height: 300px; background-color: var(--panel);"></textarea>
             <div id="previewBox" style="height: 300px;"></div>
         </div>
+
+        <!-- ============================================================ -->
+        <!-- SEO CONTENT BLOCK -->
+        <!-- ============================================================ -->
+        <section class="tool-content" style="margin-left: 0; padding: 0;">
+
+          <h2>What does the Internal Link Weaver do?</h2>
+          <p>This tool automatically inserts internal links into a block of HTML based on a keyword-to-URL list you provide — paste your article, paste a "keyword, URL" list, and it scans the text and wraps matching keyword instances in links to the right page, following whatever rules you've set.</p>
+          <p>It's built to avoid the obvious mistakes: it never links inside existing links, scripts, buttons, or code blocks, and gives you fine-grained control over headings and divs. "Whole Words Only" stops "cat" from matching inside "category", and the per-URL limit with randomised placement stops a single page from getting the same link repeated five times in one article — the kind of over-optimisation that can look spammy to both readers and search engines.</p>
+          <p>Everything runs in your browser using the DOM parser — your HTML is never uploaded anywhere.</p>
+
+          <h2>Frequently asked questions</h2>
+
+          <div class="faq-item">
+            <details>
+              <summary>Is the Internal Link Weaver free to use?</summary>
+              <p>Yes, completely free with no account or usage limit.</p>
+            </details>
+          </div>
+
+          <div class="faq-item">
+            <details>
+              <summary>How does it choose which instance to link when a keyword appears multiple times?</summary>
+              <p>If "Limit to 1 Link per URL" is enabled, it picks either the first match or, with "Randomise Placement" also on, a random match among the instances found for that URL — avoiding the same link appearing repeatedly in one article.</p>
+            </details>
+          </div>
+
+          <div class="faq-item">
+            <details>
+              <summary>Will it accidentally link inside existing links or headings?</summary>
+              <p>It never links inside existing &lt;a&gt;, &lt;script&gt;, &lt;style&gt;, &lt;button&gt;, &lt;textarea&gt;, &lt;pre&gt;, &lt;code&gt;, or &lt;svg&gt; tags. Headings (h1–h4) and text directly inside &lt;div&gt; elements are excluded by default too, though each is an individual checkbox you can turn off if you want links there.</p>
+            </details>
+          </div>
+
+          <div class="faq-item">
+            <details>
+              <summary>Is my HTML content uploaded anywhere?</summary>
+              <p>No. Parsing and link insertion happen entirely in your browser using the DOM parser — nothing is sent to a server.</p>
+            </details>
+          </div>
+
+          <div class="faq-item">
+            <details>
+              <summary>What does "Whole Words Only" prevent?</summary>
+              <p>It stops a keyword from matching as a substring inside a longer, unrelated word — for example, preventing "cat" from matching inside "category" or "concatenate".</p>
+            </details>
+          </div>
+
+          <h2>Related tools</h2>
+          <div class="related-tools">
+            <a class="related-tools__card" href="https://pierrecochart.github.io/useful-links-builder/">
+              <p class="related-tools__eyebrow">SEO &amp; Content</p>
+              <p class="related-tools__name">Useful Links Builder</p>
+              <p class="related-tools__desc">Build your keyword-to-URL list before pasting it in here.</p>
+            </a>
+            <a class="related-tools__card" href="https://pierrecochart.github.io/canonical-generating-tool/">
+              <p class="related-tools__eyebrow">SEO &amp; Content</p>
+              <p class="related-tools__name">Canonical Generator</p>
+              <p class="related-tools__desc">Generate correct canonical tags for the pages you're linking to.</p>
+            </a>
+            <a class="related-tools__card" href="https://pierrecochart.github.io/SERP-Snippet-Viewer-Optimiser/">
+              <p class="related-tools__eyebrow">SEO &amp; Content</p>
+              <p class="related-tools__name">SERP Simulator</p>
+              <p class="related-tools__desc">Preview how your freshly-linked page will look in search.</p>
+            </a>
+          </div>
+
+        </section>
+
     </main>
+</div>
 
-    <script>
-        function switchView(mode) {
-            const codeBox = document.getElementById('outputHtml');
-            const previewBox = document.getElementById('previewBox');
-            const btnCode = document.getElementById('btnCode');
-            const btnPreview = document.getElementById('btnPreview');
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Is the Internal Link Weaver free to use?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, completely free with no account or usage limit." } },
+    { "@type": "Question", "name": "How does it choose which instance to link when a keyword appears multiple times?", "acceptedAnswer": { "@type": "Answer", "text": "If Limit to 1 Link per URL is enabled, it picks either the first match or, with Randomise Placement also on, a random match among the instances found for that URL." } },
+    { "@type": "Question", "name": "Will it accidentally link inside existing links or headings?", "acceptedAnswer": { "@type": "Answer", "text": "It never links inside existing a, script, style, button, textarea, pre, code, or svg tags. Headings and text directly inside div elements are excluded by default, though each is an individual checkbox." } },
+    { "@type": "Question", "name": "Is my HTML content uploaded anywhere?", "acceptedAnswer": { "@type": "Answer", "text": "No. Parsing and link insertion happen entirely in your browser using the DOM parser — nothing is sent to a server." } },
+    { "@type": "Question", "name": "What does Whole Words Only prevent?", "acceptedAnswer": { "@type": "Answer", "text": "It stops a keyword from matching as a substring inside a longer, unrelated word — for example, preventing cat from matching inside category or concatenate." } }
+  ]
+}
+</script>
 
-            if (mode === 'code') {
-                codeBox.style.display = 'block';
-                previewBox.style.display = 'none';
-                btnCode.classList.add('active');
-                btnPreview.classList.remove('active');
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Internal Link Weaver",
+  "url": "https://pierrecochart.github.io/internal-link-weaver/",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any (runs in browser)",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "GBP" },
+  "creator": { "@type": "Person", "name": "Pierre Cochart", "url": "https://pierrecochart.github.io/" }
+}
+</script>
+
+<!-- ============================================================ -->
+<!-- SITE FOOTER -->
+<!-- ============================================================ -->
+<footer class="site-footer">
+  <div class="site-footer__cta">
+    <div class="site-footer__cta-inner">
+      <div>
+        <p class="site-footer__cta-text">Need more than a free tool?</p>
+        <p class="site-footer__cta-heading">The Search Foundry runs SEO &amp; PPC strategy for growing brands.</p>
+      </div>
+      <a class="site-footer__cta-link" href="https://searchfoundry.co.uk" target="_blank" rel="noopener">Talk to the agency ↗</a>
+    </div>
+  </div>
+
+  <div class="site-footer__inner">
+    <div class="site-footer__col">
+      <h3>Image &amp; Media</h3>
+      <ul>
+        <li><a href="https://pierrecochart.github.io/image-cropper/">Bulk Image Cropper</a></li>
+        <li><a href="https://pierrecochart.github.io/image-background-remover/">Image Background Remover</a></li>
+        <li><a href="https://pierrecochart.github.io/color-palette-generator/">Color Palette Generator</a></li>
+        <li><a href="https://pierrecochart.github.io/duotone-generator/">Duotone Generator</a></li>
+        <li><a href="https://pierrecochart.github.io/image-dithering-tool/">Image Dithering Tool</a></li>
+        <li><a href="https://pierrecochart.github.io/advanced-image-cropping-tool/">Advanced Image Cropper</a></li>
+        <li><a href="https://pierrecochart.github.io/image-to-webp-converter/">Image to WebP Converter</a></li>
+        <li><a href="https://pierrecochart.github.io/quickfav-favicon-maker/">QuickFav Favicon Maker</a></li>
+        <li><a href="https://pierrecochart.github.io/svg-cleaner/">SVG Cleaner</a></li>
+        <li><a href="https://pierrecochart.github.io/code-screenshot-image-creator/">Code Screenshot Generator</a></li>
+      </ul>
+    </div>
+    <div class="site-footer__col">
+      <h3>SEO &amp; Content</h3>
+      <ul>
+        <li><a href="https://pierrecochart.github.io/canonical-generating-tool/">Canonical Generator</a></li>
+        <li><a href="https://pierrecochart.github.io/useful-links-builder/">Useful Links Builder</a></li>
+        <li><a href="https://pierrecochart.github.io/hreflang-generator-tool/">Hreflang Generator</a></li>
+        <li><a href="https://pierrecochart.github.io/website-migration-bulk-redirect-tool/">Bulk Redirect Mapper</a></li>
+        <li><a href="https://pierrecochart.github.io/google-dork-search-operator-tool/">Google Dork Builder</a></li>
+        <li><a href="https://pierrecochart.github.io/keyword-mixer-tool/">Keyword Mixer</a></li>
+        <li><a href="https://pierrecochart.github.io/SERP-Snippet-Viewer-Optimiser/">SERP Simulator</a></li>
+        <li><a href="https://pierrecochart.github.io/seo-bulk-header-audit-tool/">SEO Header Audit</a></li>
+        <li><a href="https://pierrecochart.github.io/faq-generator/">FAQ &amp; Schema Generator</a></li>
+        <li><a href="https://pierrecochart.github.io/internal-link-weaver/">Internal Link Weaver</a></li>
+        <li><a href="https://pierrecochart.github.io/word-character-counter-read-time/">Word &amp; Character Counter</a></li>
+        <li><a href="https://pierrecochart.github.io/ai-blog-summarizer-button-generator/">AI Blog Summarizer</a></li>
+      </ul>
+    </div>
+    <div class="site-footer__col">
+      <h3>PPC &amp; Analytics</h3>
+      <ul>
+        <li><a href="https://pierrecochart.github.io/google-adwords-campaign-architect-tool/">AdWords Architect</a></li>
+        <li><a href="https://pierrecochart.github.io/roas-modeller/">ROAS Modeller</a></li>
+        <li><a href="https://pierrecochart.github.io/statistical-significance-calculator/">Significance Calculator</a></li>
+      </ul>
+    </div>
+    <div class="site-footer__col">
+      <h3>Development</h3>
+      <ul>
+        <li><a href="https://pierrecochart.github.io/document-html-link-remover/">Link Remover Tool</a></li>
+        <li><a href="https://pierrecochart.github.io/word-doc-content-sanitizer/">Word Content Sanitizer</a></li>
+        <li><a href="https://pierrecochart.github.io/github-website-builder/">GitHub Website Builder</a></li>
+        <li><a href="https://pierrecochart.github.io/html-editor/">HTML Editor</a></li>
+        <li><a href="https://pierrecochart.github.io/app-store-event-previewer/">App Store Event Previewer</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="site-footer__bottom">
+    <p>&copy; <span id="footerYear"></span> <a href="https://uk.linkedin.com/in/pierrecochart">Pierre Cochart</a>. Free, open-source, client-side tools.</p>
+    <p>Built &amp; maintained by <a href="https://searchfoundry.co.uk" target="_blank" rel="noopener">The Search Foundry</a></p>
+  </div>
+</footer>
+
+<!-- Floating BMC widget — standard on every page -->
+<script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="PierreCochart" data-description="Support me on Buy me a coffee!" data-message="" data-color="#0F6E8C" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
+
+<script>
+    function switchView(mode) {
+        const codeBox = document.getElementById('outputHtml');
+        const previewBox = document.getElementById('previewBox');
+        const btnCode = document.getElementById('btnCode');
+        const btnPreview = document.getElementById('btnPreview');
+
+        if (mode === 'code') {
+            codeBox.style.display = 'block';
+            previewBox.style.display = 'none';
+            btnCode.classList.add('active');
+            btnPreview.classList.remove('active');
+        } else {
+            codeBox.style.display = 'none';
+            previewBox.style.display = 'block';
+            previewBox.innerHTML = codeBox.value;
+            btnCode.classList.remove('active');
+            btnPreview.classList.add('active');
+        }
+    }
+
+    function weaveLinks() {
+        const htmlInput = document.getElementById('inputHtml').value;
+        const csvInput = document.getElementById('csvInput').value;
+
+        const useWholeWord = document.getElementById('wholeWord').checked;
+        const limitPerUrl = document.getElementById('firstOnly').checked;
+        const useRandom = document.getElementById('randomize').checked;
+        const relType = document.getElementById('linkRel').value;
+        const targetType = document.getElementById('linkTarget').value;
+
+        const onlyP = document.getElementById('onlyP').checked;
+        const ignoreH1 = document.getElementById('ignoreH1').checked;
+        const ignoreH2 = document.getElementById('ignoreH2').checked;
+        const ignoreH3 = document.getElementById('ignoreH3').checked;
+        const ignoreH4 = document.getElementById('ignoreH4').checked;
+        const ignoreDivs = document.getElementById('ignoreDivs').checked;
+
+        if (!htmlInput.trim()) { alert("Please paste some HTML first."); return; }
+
+        const lines = csvInput.split('\n');
+        const keywords = [];
+        const keywordToUrl = {};
+
+        lines.forEach(line => {
+            const parts = line.split(',');
+            if (parts.length >= 2) {
+                const k = parts[0].trim();
+                const u = parts.slice(1).join(',').trim();
+                if (k && u) {
+                    keywords.push(k);
+                    keywordToUrl[k.toLowerCase()] = u;
+                }
+            }
+        });
+
+        if (keywords.length === 0) { alert("No valid keywords found."); return; }
+        keywords.sort((a, b) => b.length - a.length);
+
+        const isWordChar = (char) => /[a-zA-Z0-9_]/.test(char);
+        const escapedKeywords = keywords.map(k => {
+            const escaped = k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            if (!useWholeWord) return escaped;
+            const startB = isWordChar(k[0]) ? "\\b" : "";
+            const endB = isWordChar(k[k.length - 1]) ? "\\b" : "";
+            return `${startB}${escaped}${endB}`;
+        });
+        const combinedRegex = new RegExp(`(${escapedKeywords.join('|')})`, 'gi');
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlInput, 'text/html');
+        const body = doc.body;
+
+        const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, {
+            acceptNode: function(node) {
+                const parent = node.parentElement;
+
+                if (['A', 'SCRIPT', 'STYLE', 'BUTTON', 'TEXTAREA', 'PRE', 'CODE', 'SVG'].includes(parent.tagName)) {
+                    return NodeFilter.FILTER_REJECT;
+                }
+
+                if (onlyP) {
+                    if (parent.closest('p')) return NodeFilter.FILTER_ACCEPT;
+                    return NodeFilter.FILTER_REJECT;
+                }
+
+                if (ignoreH1 && parent.closest('h1')) return NodeFilter.FILTER_REJECT;
+                if (ignoreH2 && parent.closest('h2')) return NodeFilter.FILTER_REJECT;
+                if (ignoreH3 && parent.closest('h3')) return NodeFilter.FILTER_REJECT;
+                if (ignoreH4 && parent.closest('h4')) return NodeFilter.FILTER_REJECT;
+
+                if (ignoreDivs && parent.tagName === 'DIV') return NodeFilter.FILTER_REJECT;
+
+                return NodeFilter.FILTER_ACCEPT;
+            }
+        });
+
+        let allMatches = [];
+        let currentNode;
+
+        while (currentNode = walker.nextNode()) {
+            let match;
+            combinedRegex.lastIndex = 0;
+            while ((match = combinedRegex.exec(currentNode.nodeValue)) !== null) {
+                const matchText = match[0];
+                const url = keywordToUrl[matchText.toLowerCase()];
+                if (url) {
+                    allMatches.push({
+                        node: currentNode,
+                        start: match.index,
+                        end: match.index + matchText.length,
+                        text: matchText,
+                        url: url
+                    });
+                }
+            }
+        }
+
+        const matchesByUrl = {};
+        allMatches.forEach(m => {
+            if (!matchesByUrl[m.url]) matchesByUrl[m.url] = [];
+            matchesByUrl[m.url].push(m);
+        });
+
+        let finalMatches = [];
+        Object.keys(matchesByUrl).forEach(url => {
+            const candidates = matchesByUrl[url];
+            if (limitPerUrl) {
+                let winner = candidates[0];
+                if (useRandom && candidates.length > 1) {
+                    const r = Math.floor(Math.random() * candidates.length);
+                    winner = candidates[r];
+                }
+                finalMatches.push(winner);
             } else {
-                codeBox.style.display = 'none';
-                previewBox.style.display = 'block';
-                previewBox.innerHTML = codeBox.value; 
-                btnCode.classList.remove('active');
-                btnPreview.classList.add('active');
+                finalMatches = finalMatches.concat(candidates);
             }
+        });
+
+        const matchesByNode = new Map();
+        finalMatches.forEach(m => {
+            if (!matchesByNode.has(m.node)) matchesByNode.set(m.node, []);
+            matchesByNode.get(m.node).push(m);
+        });
+
+        let totalLinks = 0;
+        let attrString = '';
+        if (relType === 'nofollow') attrString += ' rel="nofollow"';
+        else if (relType === 'sponsored') attrString += ' rel="sponsored"';
+        if (targetType === '_blank') attrString += ' target="_blank"';
+
+        matchesByNode.forEach((matches, node) => {
+            matches.sort((a, b) => b.start - a.start);
+
+            let originalText = node.nodeValue;
+            let fragment = document.createDocumentFragment();
+            let lastIndex = originalText.length;
+
+            matches.forEach(m => {
+                if (m.end > lastIndex) return;
+
+                const afterText = originalText.substring(m.end, lastIndex);
+                if (afterText) fragment.prepend(document.createTextNode(afterText));
+
+                const a = document.createElement('a');
+                a.href = m.url;
+                a.innerHTML = m.text;
+                if (relType) a.setAttribute('rel', relType);
+                if (targetType) a.setAttribute('target', targetType);
+                fragment.prepend(a);
+
+                lastIndex = m.start;
+                totalLinks++;
+            });
+
+            const beforeText = originalText.substring(0, lastIndex);
+            if (beforeText) fragment.prepend(document.createTextNode(beforeText));
+
+            node.parentNode.replaceChild(fragment, node);
+        });
+
+        const finalHtml = body.innerHTML;
+        document.getElementById('outputHtml').value = finalHtml;
+        document.getElementById('previewBox').innerHTML = finalHtml;
+        document.getElementById('stats').innerText = `Done! Created ${totalLinks} links.`;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var footerYearEl = document.getElementById('footerYear');
+        if (footerYearEl) footerYearEl.textContent = new Date().getFullYear();
+
+        var toggle = document.getElementById('navToggle');
+        var nav = document.getElementById('siteNav');
+        if (toggle && nav) {
+            toggle.addEventListener('click', function () {
+                var isOpen = nav.classList.toggle('is-open');
+                toggle.setAttribute('aria-expanded', isOpen);
+            });
         }
-
-        function weaveLinks() {
-            // -- INPUTS --
-            const htmlInput = document.getElementById('inputHtml').value;
-            const csvInput = document.getElementById('csvInput').value;
-            
-            // Options
-            const useWholeWord = document.getElementById('wholeWord').checked;
-            const limitPerUrl = document.getElementById('firstOnly').checked;
-            const useRandom = document.getElementById('randomize').checked;
-            const relType = document.getElementById('linkRel').value;
-            const targetType = document.getElementById('linkTarget').value;
-
-            // Exclusions
-            const onlyP = document.getElementById('onlyP').checked;
-            const ignoreH1 = document.getElementById('ignoreH1').checked;
-            const ignoreH2 = document.getElementById('ignoreH2').checked;
-            const ignoreH3 = document.getElementById('ignoreH3').checked;
-            const ignoreH4 = document.getElementById('ignoreH4').checked;
-            const ignoreDivs = document.getElementById('ignoreDivs').checked;
-
-            if (!htmlInput.trim()) { alert("Please paste some HTML first."); return; }
-
-            // -- STEP 1: PARSE CSV & MAP KEYWORDS --
-            const lines = csvInput.split('\n');
-            const keywords = [];
-            const keywordToUrl = {}; 
-
-            lines.forEach(line => {
-                const parts = line.split(',');
-                if (parts.length >= 2) {
-                    const k = parts[0].trim();
-                    const u = parts.slice(1).join(',').trim();
-                    if (k && u) {
-                        keywords.push(k);
-                        keywordToUrl[k.toLowerCase()] = u;
-                    }
-                }
+        document.querySelectorAll('.has-dropdown > .site-nav__link').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                if (window.innerWidth > 860) return;
+                var parent = btn.closest('.has-dropdown');
+                var isOpen = parent.classList.toggle('is-open');
+                btn.setAttribute('aria-expanded', isOpen);
             });
-
-            if (keywords.length === 0) { alert("No valid keywords found."); return; }
-            keywords.sort((a, b) => b.length - a.length);
-
-            // -- STEP 2: BUILD REGEX --
-            const isWordChar = (char) => /[a-zA-Z0-9_]/.test(char);
-            const escapedKeywords = keywords.map(k => {
-                const escaped = k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                if (!useWholeWord) return escaped;
-                const startB = isWordChar(k[0]) ? "\\b" : "";
-                const endB = isWordChar(k[k.length - 1]) ? "\\b" : "";
-                return `${startB}${escaped}${endB}`;
-            });
-            const combinedRegex = new RegExp(`(${escapedKeywords.join('|')})`, 'gi');
-
-            // -- STEP 3: SCAN DOM --
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlInput, 'text/html');
-            const body = doc.body;
-
-            const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, {
-                acceptNode: function(node) {
-                    const parent = node.parentElement;
-
-                    // 1. Always skip forbidden tags
-                    if (['A', 'SCRIPT', 'STYLE', 'BUTTON', 'TEXTAREA', 'PRE', 'CODE', 'SVG'].includes(parent.tagName)) {
-                        return NodeFilter.FILTER_REJECT;
-                    }
-
-                    // 2. Nuclear Option: Only P
-                    if (onlyP) {
-                        // Check if it is inside a P tag (or nested inside one, like <p><span>...</span></p>)
-                        if (parent.closest('p')) return NodeFilter.FILTER_ACCEPT;
-                        return NodeFilter.FILTER_REJECT;
-                    }
-
-                    // 3. Specific Exclusions
-                    // We use .closest() so it catches text inside <b> inside <h1> etc.
-                    if (ignoreH1 && parent.closest('h1')) return NodeFilter.FILTER_REJECT;
-                    if (ignoreH2 && parent.closest('h2')) return NodeFilter.FILTER_REJECT;
-                    if (ignoreH3 && parent.closest('h3')) return NodeFilter.FILTER_REJECT;
-                    if (ignoreH4 && parent.closest('h4')) return NodeFilter.FILTER_REJECT;
-                    
-                    // For DIVs, we usually mean text DIRECTLY in a div. 
-                    // If we used closest('div'), we would block almost everything.
-                    if (ignoreDivs && parent.tagName === 'DIV') return NodeFilter.FILTER_REJECT;
-
-                    return NodeFilter.FILTER_ACCEPT;
-                }
-            });
-
-            // -- STEP 4: COLLECT & SELECT MATCHES --
-            let allMatches = []; 
-            let currentNode;
-            
-            while (currentNode = walker.nextNode()) {
-                let match;
-                combinedRegex.lastIndex = 0;
-                while ((match = combinedRegex.exec(currentNode.nodeValue)) !== null) {
-                    const matchText = match[0];
-                    const url = keywordToUrl[matchText.toLowerCase()];
-                    if (url) {
-                        allMatches.push({
-                            node: currentNode,
-                            start: match.index,
-                            end: match.index + matchText.length,
-                            text: matchText,
-                            url: url
-                        });
-                    }
-                }
-            }
-
-            // Group by URL
-            const matchesByUrl = {};
-            allMatches.forEach(m => {
-                if (!matchesByUrl[m.url]) matchesByUrl[m.url] = [];
-                matchesByUrl[m.url].push(m);
-            });
-
-            let finalMatches = [];
-            Object.keys(matchesByUrl).forEach(url => {
-                const candidates = matchesByUrl[url];
-                if (limitPerUrl) {
-                    let winner = candidates[0];
-                    if (useRandom && candidates.length > 1) {
-                        const r = Math.floor(Math.random() * candidates.length);
-                        winner = candidates[r];
-                    }
-                    finalMatches.push(winner);
-                } else {
-                    finalMatches = finalMatches.concat(candidates);
-                }
-            });
-
-            // -- STEP 5: INJECT --
-            const matchesByNode = new Map();
-            finalMatches.forEach(m => {
-                if (!matchesByNode.has(m.node)) matchesByNode.set(m.node, []);
-                matchesByNode.get(m.node).push(m);
-            });
-
-            let totalLinks = 0;
-            let attrString = '';
-            if (relType === 'nofollow') attrString += ' rel="nofollow"';
-            else if (relType === 'sponsored') attrString += ' rel="sponsored"';
-            if (targetType === '_blank') attrString += ' target="_blank"';
-
-            matchesByNode.forEach((matches, node) => {
-                matches.sort((a, b) => b.start - a.start); // End to Start
-
-                let originalText = node.nodeValue;
-                let fragment = document.createDocumentFragment();
-                let lastIndex = originalText.length;
-
-                matches.forEach(m => {
-                    if (m.end > lastIndex) return; // Skip overlaps
-
-                    const afterText = originalText.substring(m.end, lastIndex);
-                    if (afterText) fragment.prepend(document.createTextNode(afterText));
-
-                    const a = document.createElement('a');
-                    a.href = m.url;
-                    a.innerHTML = m.text;
-                    if (relType) a.setAttribute('rel', relType);
-                    if (targetType) a.setAttribute('target', targetType);
-                    fragment.prepend(a);
-
-                    lastIndex = m.start;
-                    totalLinks++;
-                });
-
-                const beforeText = originalText.substring(0, lastIndex);
-                if (beforeText) fragment.prepend(document.createTextNode(beforeText));
-
-                node.parentNode.replaceChild(fragment, node);
-            });
-
-            // -- OUTPUT --
-            const finalHtml = body.innerHTML;
-            document.getElementById('outputHtml').value = finalHtml;
-            document.getElementById('previewBox').innerHTML = finalHtml;
-            document.getElementById('stats').innerText = `Done! Created ${totalLinks} links.`;
-        }
-    </script>
+        });
+    });
+</script>
 </body>
 </html>
